@@ -2,23 +2,40 @@ import random
 
 
 class GeneticAlgorithm:
-    def __init__(self, POPULATION_SIZE, MUTATION_RATE):
-        self.population_size = POPULATION_SIZE
-        self.mutation_rate = MUTATION_RATE
+    def __init__(self, pop_size, mut_rate):
+        self.population_size = pop_size
+        self.mutation_rate = mut_rate
+        self.tournament_size = int(0.8 * self.population_size)
+        self.n_parents = int(0.5 * self.tournament_size)
 
     def generate_initial_population(self):
         population = []
         for i in range(self.population_size):
-            path_length = random.randint(10, 25)  # No. of genes in the chromosome
+            path_length = random.randint(10, 80)  # No. of genes in the chromosome
             path = ''.join(random.choices(['U', 'D', 'L', 'R'], k=path_length))
             population.append(path)
         return population
 
     def select_parents(self, population, fitness_scores):
+        self.population_size = len(population)
+        print(f'Info: Size of the Tournament - {self.tournament_size}')
+        parent1, parent2 = [], []
         # Select two parents from the population using tournament selection
-        parent1 = random.choices(population, weights=fitness_scores, k=5)
-        parent2 = random.choices(population, weights=fitness_scores, k=5)
+        for i in range(self.n_parents):
+            parent1.append(self.tournament_selection(population, fitness_scores))
+            parent2.append(self.tournament_selection(population, fitness_scores))
         return parent1, parent2
+
+    def tournament_selection(self, population, fitness_scores):
+        # Randomly select 'tournament_size' individuals (by index) from the population.
+        contestant_indices = random.sample(range(self.population_size), self.tournament_size)
+
+        best_index = contestant_indices[0]
+        for idx in contestant_indices:
+            if fitness_scores[idx] > fitness_scores[best_index]:
+                best_index = idx
+        best_parent = population[best_index]
+        return best_parent
 
     def crossover(self, parent1, parent2):
         # Perform crossover between two parents to create a child
