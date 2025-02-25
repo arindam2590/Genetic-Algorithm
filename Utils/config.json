@@ -1,1 +1,7 @@
-
+{
+    "POPULATION_SIZE": 20,
+    "MUTATION_RATE": 0.1,
+    "NUM_GENERATIONS": 5,
+    "MAZE_MODEL_DIR": "Model/",
+    "BUFFER_SIZE": 5000
+}
