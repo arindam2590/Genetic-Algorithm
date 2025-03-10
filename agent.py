@@ -19,6 +19,9 @@ class GeneticAgent:
         self.num_generations = self.params['NUM_GENERATIONS']
         self.gen_algo = GeneticAlgorithm(self.population_size, self.mutation_rate)
         self.population = None
+        self.weighted_feas = 100
+        self.weighted_len = 10
+        self.weighted_turn = 10
 
     def move(self, path):
         x, y = self.position
@@ -43,9 +46,11 @@ class GeneticAgent:
 
         for generation in range(self.num_generations):
             print(f"Generation {generation + 1}:")
-            fitness_scores = [self.evaluate_fitness(individual) for individual in self.population]
+            fitness = [self.evaluate_fitness(individual) for individual in self.population]
+            fitness_scores = self.normalized_fitness(fitness, True)
             new_population = self.run_generation(fitness_scores)
-            fitness_scores_new_population = [self.evaluate_fitness(individual) for individual in new_population]
+            fitness = [self.evaluate_fitness(individual) for individual in new_population]
+            fitness_scores_new_population = self.normalized_fitness(fitness)
             best_fitness_index = np.argmax(fitness_scores_new_population)
             best_path = new_population[best_fitness_index]
             print(f'Best Fitness Score: {fitness_scores_new_population[best_fitness_index]} \n'
@@ -53,7 +58,7 @@ class GeneticAgent:
             self.population = new_population
             print(f'-' * 101)
         return best_path
-            # self.move(best_path)
+        # self.move(best_path)
         #     if np.array_equal(self.position, self.dst):
         #         print("Goal reached!")
         #         return best_path, fitness_scores
@@ -78,8 +83,14 @@ class GeneticAgent:
 
     def evaluate_fitness(self, path):
         x, y = self.position
-        fitness = 0.0
+        individual_len, turn_count, feasibility_score = 1, 0, 0
+        for i in range(1, len(path)):
+            individual_len += 1
+            if path[i] != path[i - 1]:
+                turn_count += 1
 
+        print(turn_count)
+        feasibility = True
         for direction in path:
             if direction == 'U':
                 x -= 1
@@ -90,14 +101,46 @@ class GeneticAgent:
             elif direction == 'R':
                 y += 1
             if x < 0 or x >= self.maze.shape[0] or y < 0 or y >= self.maze.shape[1]:
+                feasibility = False
                 break
 
             if self.maze[x][y] == 1:
-                fitness -= 0.5
-            else:
-                fitness += 1.0
+                feasibility = False
+                break
 
         position = np.array([x, y])
         if np.array_equal(position, self.dst):
-            fitness += 5
-        return fitness
+            feasibility = True
+
+        if feasibility:
+            feasibility_score = 5
+
+        return [turn_count, feasibility_score, individual_len]
+
+    def normalized_fitness(self, fitness, flag=False):
+        fitness_array = np.array(fitness, dtype=float)
+        feasibility_values = fitness_array[:, 0]
+        turn_count_values = fitness_array[:, 1]
+        individual_len_values = fitness_array[:, 2]
+
+        min_feasibility, max_feasibility = min(feasibility_values), max(feasibility_values)
+        min_turns, max_turns = min(turn_count_values), max(turn_count_values)
+        min_length, max_length = min(individual_len_values), max(individual_len_values)
+        if flag:
+            print(f'Info: Min. Feasibility: {min_feasibility: .3f}, Max. Feasibility: {max_feasibility: .3f}, '
+                  f'Min. Turns: {min_turns: .3f}, Max. Turns: {max_turns: .3f}, Min. Length: {min_length: .3f}, '
+                  f'Max. Length: {max_length: .3f}')
+
+        normalized_fitness = [[1 - ((feasibility - min_feasibility) / (max_feasibility - min_feasibility))
+                               if max_feasibility != min_feasibility else 1.0,
+                               1 - ((turn - min_turns) / (max_turns - min_turns)) if max_turns != min_turns else 1.0,
+                               1 - ((length - min_length) / (max_length - min_length))
+                               if max_length != min_length else 1.0]
+                              for feasibility, turn, length in fitness]
+
+        final_fitness_values = [(self.weighted_feas * normalized_value[0]) *
+                                (((self.weighted_turn * normalized_value[1]) + (self.weighted_len * normalized_value[1]))
+                                /(self.weighted_turn + self.weighted_len))
+                                for normalized_value in normalized_fitness]
+
+        return final_fitness_values

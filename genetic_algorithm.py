@@ -5,13 +5,13 @@ class GeneticAlgorithm:
     def __init__(self, pop_size, mut_rate):
         self.population_size = pop_size
         self.mutation_rate = mut_rate
-        self.tournament_size = int(0.8 * self.population_size)
-        self.n_parents = int(0.5 * self.tournament_size)
+        self.tournament_size = int(0.9 * self.population_size)
+        self.n_parents = int(0.7 * self.tournament_size)
 
     def generate_initial_population(self):
         population = []
         for i in range(self.population_size):
-            path_length = random.randint(10, 80)  # No. of genes in the chromosome
+            path_length = random.randint(10, 40)  # No. of genes in the chromosome
             path = ''.join(random.choices(['U', 'D', 'L', 'R'], k=path_length))
             population.append(path)
         return population
@@ -32,7 +32,7 @@ class GeneticAlgorithm:
 
         best_index = contestant_indices[0]
         for idx in contestant_indices:
-            if fitness_scores[idx] > fitness_scores[best_index]:
+            if fitness_scores[idx] < fitness_scores[best_index]:
                 best_index = idx
         best_parent = population[best_index]
         return best_parent
