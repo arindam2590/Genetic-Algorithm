@@ -1,23 +1,35 @@
 import random
+import json
+import numpy as np
 
 
 class GeneticAlgorithm:
     def __init__(self, pop_size, mut_rate):
+        with open('Utils/config.json', 'r') as file:
+            self.params = json.load(file)
+
         self.population_size = pop_size
+        self.lower_bound = self.params['CHROMOSOME_LOWER']
+        self.upper_bound = self.params['CHROMOSOME_UPPER']
         self.mutation_rate = mut_rate
-        self.tournament_size = int(0.9 * self.population_size)
-        self.n_parents = int(0.7 * self.tournament_size)
+        self.tour_size_percent = self.params['TOURNAMENT_PERCENT']
+        self.parent_percent = self.params['PARENT_PERCENT']
+        self.tournament_size = None
+        self.n_parents = None
 
     def generate_initial_population(self):
         population = []
         for i in range(self.population_size):
-            path_length = random.randint(10, 40)  # No. of genes in the chromosome
+            path_length = np.random.randint(self.lower_bound, self.upper_bound)
             path = ''.join(random.choices(['U', 'D', 'L', 'R'], k=path_length))
             population.append(path)
         return population
 
     def select_parents(self, population, fitness_scores):
         self.population_size = len(population)
+        self.tournament_size = int(self.tour_size_percent * self.population_size)
+        self.n_parents = int(self.parent_percent * self.tournament_size)
+
         print(f'Info: Size of the Tournament - {self.tournament_size}')
         parent1, parent2 = [], []
         # Select two parents from the population using tournament selection
