@@ -1,35 +1,42 @@
 import numpy as np
 from agent import GeneticAgent
 
-# from maze_visualizer import visualize_maze, visualize_fitness
 
-source = np.array([0, 0])
-destination = np.array([14, 14])
+def main():
+    source = np.array([0, 0])
+    destination = np.array([3, 3])
 
-maze = np.array([
-    [0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0],
-    [0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
-    [0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
-    [0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
-    [0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0],
-    [0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0],
-    [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0],
-    [0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0],
-    [0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0],
-    [0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0],
-    [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
-    [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
-    [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0],
-    [1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0]
-])
+    maze = np.array([[0, 0, 0, 0],
+                     [0, 1, 0, 1],
+                     [0, 0, 0, 1],
+                     [1, 0, 0, 0]])
 
-ga_agent = GeneticAgent(source, destination, maze)
-best_path = ga_agent.run_genetic_algorithm()
+    # maze = np.array([[0, 0, 0, 1, 0, 0, 0, 1, 1, 1, 1, 1, 0, 0, 0],
+    #                  [0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0],
+    #                  [0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+    #                  [0, 1, 0, 1, 0, 1, 0, 0, 0, 1, 0, 0, 0, 1, 0],
+    #                  [0, 0, 0, 1, 0, 1, 1, 0, 0, 1, 0, 1, 0, 1, 0],
+    #                  [0, 0, 0, 1, 0, 1, 1, 0, 0, 0, 0, 1, 0, 1, 0],
+    #                  [0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0],
+    #                  [0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0],
+    #                  [0, 0, 1, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0],
+    #                  [0, 0, 1, 0, 1, 0, 1, 0, 0, 1, 0, 1, 0, 0, 0],
+    #                  [0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0],
+    #                  [1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 1, 0, 1, 0],
+    #                  [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 1, 0, 1, 0],
+    #                  [1, 0, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, 0, 0, 0],
+    #                  [1, 0, 0, 1, 1, 1, 1, 0, 0, 1, 0, 0, 0, 0, 0]])
 
-'''# Visualize the best ant's path through the maze
-print(f"Best ant fitness: {best_ant.fitness}")
-visualize_maze(maze, ant=best_ant)
+    ga_agent = GeneticAgent(source, destination, maze)
+    best_path = ga_agent.run_genetic_algorithm()
 
-# Visualize the fitness history of the genetic algorithm3
-visualize_fitness(fitness_history)'''
+    if best_path:
+        print(f"\nOptimal Path Found: {best_path}")
+    else:
+        print("\nNo optimal path found within the given generations.")
+
+    ga_agent.display_maze()
+
+
+if __name__ == '__main__':
+    main()
