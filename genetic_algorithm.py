@@ -35,6 +35,8 @@ class GeneticAlgorithm:
                 chromosome.append(next_move)
                 previous_move = next_move
             population.append(''.join(chromosome))
+        print(f'Info: Initial Population has been created. \nInfo: Initial Population Size: {self.population_size}')
+        print(f'-' * 101)
         return population
 
     # def select_parents(self, population, fitness_scores):
@@ -53,7 +55,7 @@ class GeneticAlgorithm:
     def select_parents(self, population, fitness_scores):
         filtered_population, filtered_fitness = zip(*[(individual, fit) for individual, fit in
                                                       zip(population, fitness_scores) if fit >= 0]) \
-            if any(fit >= 0 for fit in fitness_scores) else ([], [])
+            if any(fit > 0 for fit in fitness_scores) else ([], [])
 
         if len(filtered_population) == 0:
             print(f"Warning: All individuals had negative fitness! Regenerating population...")
@@ -61,19 +63,20 @@ class GeneticAlgorithm:
 
         sorted_population = [x for _, x in sorted(zip(filtered_fitness, filtered_population), reverse=True)]
         sorted_fitness = sorted(filtered_fitness, reverse=True)
+        print(sorted_fitness)
 
         self.population_size = len(sorted_population)
         self.tournament_size = int(self.tour_size_percent * self.population_size)
         self.n_parents = int(self.parent_percent * self.tournament_size)
 
-        print(f'Info: Size of the Tournament - {self.tournament_size}')
+        print(f'Info: Size of the Tournament - {self.tournament_size}, Sorted Population Size: {self.population_size}')
         parent1, parent2 = [], []
         for i in range(self.n_parents):
-            parent1.append(self.tournament_selection(sorted_population, sorted_fitness))
-            parent2.append(self.tournament_selection(sorted_population, sorted_fitness))
+            parent1.append(self.tournament_selection(sorted_population))
+            parent2.append(self.tournament_selection(sorted_population))
         return parent1, parent2
 
-    def tournament_selection(self, population, fitness_scores):
+    def tournament_selection(self, population):
         # Randomly select 'tournament_size' individuals (by index) from the population.
         contestant_indices = random.sample(range(self.population_size), self.tournament_size)
         best_index = contestant_indices[0]
@@ -131,7 +134,7 @@ class GeneticAlgorithm:
                 (gene == 'U' and next_gene == 'D') or (gene == 'D' and next_gene == 'U'):
                 if random.random() < self.mutation_rate:
                     possible_gene = random.choice(['U', 'D', 'L', 'R'])
-                new_chromosome +=
+                # new_chromosome +=
             else:
                 new_chromosome += gene
         return chromosome

@@ -35,45 +35,43 @@ class GeneticAgent:
     def run_genetic_algorithm(self):
         print(f'\n' + '%' * 20 + ' Genetic Algorithm based Path Generation in Maze Environment ' + '%' * 20)
         self.population = self.gen_algo.generate_initial_population()
-        print(f'Info: Initial Population has been created. \nInfo: Initial Population Size: {self.population_size}')
-        print(f'-' * 101)
 
         for generation in range(self.num_generations):
             print(f"Generation {generation + 1}:")
 
             fitness_scores = [self.evaluate_fitness(individual) for individual in self.population]
-            # print(fitness)
-            # filtered_fitness = self.remove_infeasible_individuals(fitness)
-            # filtered_population, filtered_fitness = zip(*[(individual, fit) for individual, fit in
-            #                                               zip(self.population, fitness) if fit[1]]) \
-            #     if any(fit[1] for fit in fitness) else ([], [])
-            # self.population = filtered_population
-            # self.population_size = len(filtered_population)
-            # filtered_fitness = list(filtered_fitness)
-
-            # norm_fitness_scores = self.normalized_fitness(fitness, True)
-
+            # print(fitness_scores)
+        #     # filtered_fitness = self.remove_infeasible_individuals(fitness)
+        #     # filtered_population, filtered_fitness = zip(*[(individual, fit) for individual, fit in
+        #     #                                               zip(self.population, fitness) if fit[1]]) \
+        #     #     if any(fit[1] for fit in fitness) else ([], [])
+        #     # self.population = filtered_population
+        #     # self.population_size = len(filtered_population)
+        #     # filtered_fitness = list(filtered_fitness)
+        #
+        #     # norm_fitness_scores = self.normalized_fitness(fitness, True)
+        #
             best_fitness_index = np.argmax(fitness_scores)
             best_value_generation = fitness_scores[best_fitness_index]
             best_solution_generation = self.population[best_fitness_index]
-            self.best_fitness_list.append(best_value_generation)
-            self.best_solution_list.append(best_solution_generation)
-
-            print(f'Info: Best Fitness of the Generation: {best_value_generation:.3f} | '
-                  f'Previous Best Fitness : {self.best_fitness:.3f} | Best Path of the Generation: {best_solution_generation} | '
-                  f'Previous Best Solution: {self.best_solution}')
+        #     self.best_fitness_list.append(best_value_generation)
+        #     self.best_solution_list.append(best_solution_generation)
+        #
+        #     print(f'Info: Best Fitness of the Generation: {best_value_generation:.3f} | '
+        #           f'Previous Best Fitness : {self.best_fitness:.3f} | Best Path of the Generation: {best_solution_generation} | '
+        #           f'Previous Best Solution: {self.best_solution}')
             if best_value_generation > self.best_fitness:
                 print(f'Info: Best solution is improved in this Generation.')
                 self.best_fitness = best_value_generation
                 self.best_solution = best_solution_generation
             else:
                 print(f'Info: Best solution is not improved in this Generation')
-
+        #
             new_population = self.run_generation(fitness_scores)
             self.population = new_population
-            print(f'-' * 101)
-
-        self.data_visual.plot_fitness(self.best_fitness_list)
+        #     print(f'-' * 101)
+        #
+        # self.data_visual.plot_fitness(self.best_fitness_list)
         return self.best_solution
 
     def run_generation(self, fitness_scores):
@@ -83,39 +81,18 @@ class GeneticAgent:
 
         for p1, p2 in zip(parent1, parent2):
             child = self.gen_algo.crossover(p1, p2)
-            new_population.append(self.gen_algo.mutate(child))
-            # new_population.append(child)
-        print(f'Info: Mutation Rate for the Child - {self.mutation_rate}')
-        elite_individuals = [best_ind[0] for best_ind in
-                             sorted(zip(self.population, fitness_scores), key=lambda x: x[1],
-                                    reverse=True)[:self.elitism]]
-        print(f'Info: Elite individuals of the Generation - {elite_individuals}')
-        for individual in elite_individuals:
-            new_population.append(individual)
-        self.population_size = len(new_population)
-        print(f'Info: Size of the New Population - {self.population_size}')
+        #     new_population.append(self.gen_algo.mutate(child))
+            new_population.append(child)
+        # print(f'Info: Mutation Rate for the Child - {self.mutation_rate}')
+        # elite_individuals = [best_ind[0] for best_ind in
+        #                      sorted(zip(self.population, fitness_scores), key=lambda x: x[1],
+        #                             reverse=True)[:self.elitism]]
+        # print(f'Info: Elite individuals of the Generation - {elite_individuals}')
+        # for individual in elite_individuals:
+        #     new_population.append(individual)
+        # self.population_size = len(new_population)
+        # print(f'Info: Size of the New Population - {self.population_size}')
         return new_population
-
-    # def evaluate_fitness(self, individual):
-    #     x, y = self.src
-    #     individual_len, turn_count, feasibility_score, feasible_flag = 1, 0, 0, True
-    #
-    #     for i in range(len(individual) - 1):
-    #         if individual[i] != individual[i + 1]:
-    #             turn_count += 1
-    #
-    #     for gene in individual:
-    #         individual_len += 1
-    #         x, y = x + (gene == 'D') - (gene == 'U'), y + (gene == 'R') - (gene == 'L')
-    #
-    #         if x < 0 or x >= self.maze.shape[0] or y < 0 or y >= self.maze.shape[1] or self.maze[x][y] == 1:
-    #             feasible_flag = False
-    #             return [-5, feasible_flag, turn_count, individual_len]
-    #
-    #         feasibility_score += 1
-    #
-    #     return [feasibility_score + 5 if (x, y) == tuple(self.dst) else feasibility_score,
-    #             feasible_flag, turn_count, individual_len]
 
     def evaluate_fitness(self, individual):
         x, y = self.src
@@ -123,14 +100,14 @@ class GeneticAgent:
         for gene in individual:
             x, y = x + (gene == 'D') - (gene == 'U'), y + (gene == 'R') - (gene == 'L')
             if x < 0 or x >= self.maze.shape[0] or y < 0 or y >= self.maze.shape[1] or self.maze[x][y] == 1:
-                penalty -= 1.0
+                penalty -= 2.0 # fitness if fitness > 0.0 else 1
             else:
                 if (x, y) == tuple(self.dst):
                     fitness += 5.0
                 else:
                     fitness += 1.0
             dist_fitness = self.euclidean_distance((x, y))
-        fitness = fitness - (penalty + dist_fitness)
+        fitness = fitness + dist_fitness + penalty
         return fitness
 
     def euclidean_distance(self, point1):
