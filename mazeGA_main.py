@@ -32,10 +32,11 @@ def main():
 
     if best_path:
         print(f"\nOptimal Path Found: {best_path}")
+        ga_agent.display_maze()
     else:
         print("\nNo optimal path found within the given generations.")
 
-    ga_agent.display_maze()
+
 
 
 if __name__ == '__main__':
